@@ -30,5 +30,17 @@ window.Maladh.FrasiIt = {
   "ihya:awrad_hamd": { it: "Lodiamo Dio per i Suoi benefici, con lode abbondante, e Lo ricordiamo con un ricordo che non lascia nel cuore né superbia né ripulsa.", m: ["mattino"] },
   "ihya:tahara_hamd": { it: "Lode a Dio, che è stato gentile con i Suoi servi e ha fatto della pulizia una forma di culto, e ha riversato sui loro cuori le Sue luci e le Sue premure per purificarne l’intimo.", m: ["mattino"] },
   "ihya:shukr_zakat": { it: "Quando riceve un dono, loda Dio e Lo ringrazia, vede che il beneficio viene da Lui e non guarda all’intermediario: è il più riconoscente tra i servi di Dio, perché vede che ogni beneficio viene da Lui.", m: ["mattino", "sera"] },
-  "ihya:ukhuwwa": { it: "Unì i loro cuori e, per il Suo favore, divennero fratelli. Tolse il rancore dai loro petti: in questo mondo amici e compagni, nell’altra vita compagni e intimi.", m: ["mattino"] }
+  "ihya:ukhuwwa": { it: "Unì i loro cuori e, per il Suo favore, divennero fratelli. Tolse il rancore dai loro petti: in questo mondo amici e compagni, nell’altra vita compagni e intimi.", m: ["mattino"] },
+  "ihya:tawakkul_tifl": { it: "Il secondo grado, più forte: che il suo stato con Dio sia come quello del bambino con la madre. Non conosce altri che lei, non corre a rifugiarsi da nessun altro, non si appoggia che a lei.", m: ["sera", "sonno"] },
+  "ihya:tawakkul_qabla_suaal": { it: "Quanti doni Egli ha dato per primo, prima della richiesta e della supplica, e senza che fossero meritati.", m: ["mattino", "preghiera"] },
+  "ihya:raja_irtiyah": { it: "La speranza è il sollievo del cuore nell’attesa di ciò che gli è caro." },
+  "ihya:raja_mudabbir": { it: "Colui che governa questo mondo e l’altro è uno solo, e perdona, è misericordioso, benevolo con i Suoi servi e tenero verso di loro.", m: ["sera", "sonno"] },
+  "ihya:nur_ishraq": { it: "Gloria a Colui che si è velato con lo splendore della Sua luce e si è nascosto agli sguardi del cuore e degli occhi per la Sua stessa evidenza.", m: ["preghiera", "sera"] },
+  "ihya:hubb_lidhatihi": { it: "Chi Lo ama per ciò che Egli è, perché è degno d’amore per la Sua perfezione, la Sua bellezza, la Sua gloria e la Sua grandezza, non ama di più o di meno secondo i benefici che riceve.", m: ["mattino", "preghiera"] },
+  "ihya:rida_latf": { it: "Chi conosce la benevolenza nascosta di Dio è contento di ciò che Egli fa, in ogni circostanza.", m: ["sera", "sonno"] },
+  "ihya:hubb_tawalli": { it: "Il segno, nei fatti, di essere amati è che Dio si prende cura di lui, nel visibile e nel nascosto, nel segreto e nel palese: è Lui a consigliarlo, a disporre le sue cose, ad abbellire il suo carattere, a guidare le sue membra, a rendere retto ciò che di lui si vede e ciò che non si vede.", m: ["preghiera", "sera"] },
+  "ihya:shukr_basir": { it: "Chi sa vedere non posa gli occhi su nulla in questo mondo, e nulla gli attraversa il pensiero, senza riconoscere che Dio vi ha posto un dono per lui.", m: ["mattino"] },
+  "ihya:shukr_farq": { it: "Quanta differenza tra chi cerca Dio perché gli faccia dei doni e chi cerca i doni di Dio per giungere, con essi, a Lui.", m: ["mattino", "preghiera"] },
+  "ihya:shukr_adab": { it: "Il garbo davanti a Colui che dona è gratitudine; accogliere bene i doni e stimare grande anche il più piccolo è gratitudine.", m: ["mattino", "sera"] },
+  "ihya:shukr_satr": { it: "Perfino la gratitudine degli occhi è coprire ogni difetto che vedono in un musulmano, e quella delle orecchie è coprire ogni difetto che sentono di lui.", m: ["mattino"] }
 };

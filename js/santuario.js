@@ -31,7 +31,7 @@
       k: 'gratitudine', titolo: 'Gratitudine', sotto: 'Una gioia riconosciuta diventa lode.',
       aya: ['2:152', '16:53', '42:28', '35:2'],
       voci: [{ c: 'gratitudine', id: 218 }, { r: 33 }],
-      parola: '',
+      parola: 'ihya:shukr_basir',
       poi: [{ adhkar: 'gratitudine' }, { tasbih: true }, { awrad: 'shadhili', sotto: 'Tra le litanie: Ḥizb al-Ḥamd, la lode continua' }]
     },
     {
@@ -45,7 +45,7 @@
       k: 'pace', titolo: 'Pace', sotto: 'Un momento per restare, senza chiedere nulla.',
       aya: ['89:27-30', '13:28', '33:41-43', '10:62'],
       voci: [{ c: 'preghiera', id: 66 }, { r: 8 }],
-      parola: '',
+      parola: 'ihya:rida_latf',
       poi: [{ tasbih: true }, { awrad: '' }]
     }
   ];

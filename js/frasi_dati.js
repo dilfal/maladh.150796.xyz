@@ -1,4 +1,4 @@
-/* Maladh – «Una parola»: ritagli dei Hadith Qudsi (raccolta «Forty Hadith Qudsi», Sahih al-Bukhari, Sahih Muslim e Jami' at-Tirmidhi: fawazahmed0/hadith-api), di Al-Ḥikam di Ibn ʿAṭāʾ Allāh (corpus OpenITI, commit 1c14df8, testo senza vocali) e di Iḥyāʾ ʿulūm al-dīn di al-Ghazālī (ar.wikisource.org, CC BY-SA 4.0, revisioni fissate, testo senza vocali). Generato da tools/genera_frasi.py: non modificarlo a mano. */
+/* Maladh – «Una parola»: ritagli dei Hadith Qudsi (raccolta «Forty Hadith Qudsi», Sahih al-Bukhari, Sahih Muslim e Jami' at-Tirmidhi: fawazahmed0/hadith-api), di Al-Ḥikam di Ibn ʿAṭāʾ Allāh (corpus OpenITI, commit 1c14df8, testo senza vocali) e di Iḥyāʾ ʿulūm al-dīn di al-Ghazālī (ar.wikisource.org, CC BY-SA 4.0, revisioni fissate, testo senza vocali; quarta parte dell'opera: corpus OpenITI, commit 6290621, testo senza vocali). Generato da tools/genera_frasi.py: non modificarlo a mano. */
 window.Maladh = window.Maladh || {};
 window.Maladh.Frasi = [
  {
@@ -140,5 +140,65 @@ window.Maladh.Frasi = [
   "k": "ihya:tahara_hamd",
   "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
   "ar": "الحمد لله الذي تلطف بعباده فتعبدهم بالنظافة، وأفاض على قلوبهم تزكية لسرائرهم أنواره وألطافه"
+ },
+ {
+  "k": "ihya:raja_irtiyah",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "فالرجاء هو ارتياح القلب لانتظار ما هو محبوب عنده"
+ },
+ {
+  "k": "ihya:raja_mudabbir",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "مدبر الدنيا والآخرة واحد وهو غفور رحيم لطيف بعباده متعطف عليهم"
+ },
+ {
+  "k": "ihya:rida_latf",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "فإذن من عرف خفي لطف الله تعالى رضي بفعله على كل حال"
+ },
+ {
+  "k": "ihya:hubb_tawalli",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "وأما الفعل الدال على كونه محبوبا فهو أن يتولى الله تعالى أمره ظاهره وباطنه سره وجهره فيكون هو المشير عليه والمدبر لأمره والمزين لأخلاقه والمستعمل لجوارحه والمسدد لظاهره وباطنه"
+ },
+ {
+  "k": "ihya:nur_ishraq",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "فسبحان من احتجب بإشراق نوره واختفى عن البصائر والأبصار بظهوره"
+ },
+ {
+  "k": "ihya:hubb_lidhatihi",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "وأما من يحبه لذاته ولأنه مستحق للحب بسبب كماله وجماله ومجده وعظمته فإنه لا يتفاوت حبه بتفاوت الإحسان إليه"
+ },
+ {
+  "k": "ihya:shukr_basir",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "فإن البصير لا تقع عينه في العالم على شيء ولا يلم خاطره بموجود إلا ويتحقق أن لله فيه نعمة عليه"
+ },
+ {
+  "k": "ihya:shukr_farq",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "وكم من فرق بين من يريد الله لينعم عليه وبين من يريد نعم الله ليصل بها إليه"
+ },
+ {
+  "k": "ihya:shukr_satr",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "حتى إن شكر العينين أن تستر كل عيب تراه لمسلم وشكر الأذنين أن تستر كل عيب تسمعه فيه"
+ },
+ {
+  "k": "ihya:shukr_adab",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "وحسن الأدب بين يدي المنعم شكر وتلقي النعم بحسن القبول واستعظام صغيرها شكر"
+ },
+ {
+  "k": "ihya:tawakkul_tifl",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "الثانية وهي أقوى أن يكون حاله مع الله تعالى كحال الطفل مع أمه فإنه لا يعرف غيرها ولا يفزع إلى أحد سواها ولا يعتمد إلا إياها"
+ },
+ {
+  "k": "ihya:tawakkul_qabla_suaal",
+  "fonte": "Iḥyāʾ ʿulūm al-dīn di al-Ghazālī",
+  "ar": "فكم من نعمة ابتدأها قبل السؤال والدعاء وبغير الاستحقاق"
  }
 ];
