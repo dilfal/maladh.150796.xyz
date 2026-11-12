@@ -1,6 +1,6 @@
 /* Maladh – service worker: tiene l'app in memoria per usarla senza rete e serve le registrazioni dell'utente.
    Sullo stesso indirizzo di base possono vivere altre app: qui si toccano solo le memorie che iniziano per «maladh-». */
-var CACHE = 'maladh-v5';
+var CACHE = 'maladh-v6';
 var AUDIO_CACHE = 'maladh-audio-v1';     // le registrazioni caricate dall'utente (le scrive js/pacchetto.js)
 var FILES = [
   './', 'index.html', 'site.webmanifest',
