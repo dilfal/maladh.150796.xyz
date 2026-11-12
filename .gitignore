@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Audio pesanti (gli audio sono privati e caricati via zip dall'utente, mai committati)
+audio/*
+!audio/natura/
+
+# Note e strumenti locali (decisione del repo pubblico, restano solo sul PC locale)
+*.md
+docs/
+tools/
+
+# Originali delle immagini, riferimenti, pacchetti e file di lavoro (restano sul PC locale)
+arte_grezza/
+riferimenti/
+__pycache__/
+*.zip
+.claude/
