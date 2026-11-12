@@ -32,6 +32,24 @@
 </head>
 <body>
 
+<!-- Schermata d'apertura: breve, a ogni caricamento. Si dissolve da sola (solo CSS); js/nome.js la toglie e la chiude al tocco. -->
+<div class="splash" id="splash" aria-hidden="true">
+  <svg class="splash-segno" viewBox="0 0 32 32" width="72" height="72" focusable="false">
+    <g fill="currentColor">
+      <circle cx="16" cy="5" r="1.7"/><circle cx="22.2" cy="7.5" r="1.7"/><circle cx="24.8" cy="13.4" r="1.7"/>
+      <circle cx="23.2" cy="19.6" r="1.7"/><circle cx="19.4" cy="24" r="1.7"/>
+      <circle cx="12.6" cy="24" r="1.7"/><circle cx="8.8" cy="19.6" r="1.7"/><circle cx="7.2" cy="13.4" r="1.7"/>
+      <circle cx="9.8" cy="7.5" r="1.7"/>
+      <circle cx="16" cy="27.2" r="3.1"/>
+    </g>
+  </svg>
+  <p class="splash-nome">Maladh</p>
+  <p class="splash-ar" lang="ar" dir="rtl">ملاذ</p>
+  <p class="splash-sotto">rifugio</p>
+  <p class="splash-saluto" id="splash-saluto" hidden></p>
+</div>
+<script src="js/nome.js"></script>
+
 <a class="salta" href="#main">Vai al contenuto</a>
 
 <header class="top" id="top">
@@ -100,6 +118,12 @@
     <h2 id="sheet-title">Su Maladh</h2>
     <p>Maladh (<span class="ar" dir="rtl" lang="ar">ملاذ</span>) vuol dire rifugio. Non conta i tuoi giorni e non ti ricorda nulla: resta qui, per quando ne senti il bisogno.</p>
 
+    <div class="campo">
+      <label for="opt-nome">Il tuo nome (facoltativo)</label>
+      <input type="text" id="opt-nome" maxlength="30" autocomplete="given-name" autocapitalize="words" enterkeyhint="done" spellcheck="false" autocorrect="off">
+      <p class="nota">Il nome resta solo in questo telefono.</p>
+    </div>
+
     <label class="spunta" for="opt-suono">
       <input type="checkbox" id="opt-suono">
       <span>Suono del tocco nel Tasbih</span>
@@ -116,6 +140,9 @@
     </div>
     <input type="file" id="pk-file" accept=".zip,application/zip" hidden>
     <p class="nota">Le registrazioni restano solo in questo telefono. Niente viene inviato fuori.</p>
+
+    <h3>Da dove vengono i testi</h3>
+    <p class="nota">Corano: testo di Tanzil (tanzil.net). Adhkar: Hisn al-Muslim. Hadith Qudsi: raccolte del progetto hadith-api. Al-Ḥikam: corpus OpenITI. Iḥyāʾ ʿulūm al-dīn: ar.wikisource.org (licenza CC BY-SA 4.0). Le traduzioni italiane sono di Maladh.</p>
 
     <p class="versione" id="app-versione"></p>
     <div class="sheet-azioni"><button class="btn" id="sheet-chiudi" type="button">Chiudi</button></div>

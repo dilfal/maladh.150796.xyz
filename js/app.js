@@ -147,13 +147,15 @@
     var f = fascia(h);
     var risveglio = h >= 4 && h < 9;
     var nAya = Array.isArray(M.Aya) ? M.Aya.length : 0, nFrasi = Array.isArray(M.Frasi) ? M.Frasi.length : 0;
-    var firma = [saluto(h), f, risveglio, ora.toDateString(), categorie().length, nAya, nFrasi].join('|');
+    var nome = M.Nome ? M.Nome.leggi() : '';
+    var firma = [saluto(h), f, risveglio, ora.toDateString(), categorie().length, nAya, nFrasi, nome].join('|');
     if (!forza && firma === firmaAdesso) return;
     firmaAdesso = firma;
 
     var data = dataOggi(ora), lunare = dataLunare(ora);
     var cat = categoria(f), ris = risveglio ? categoria('risveglio') : null;
-    var html = '<h1 class="saluto">' + esc(saluto(h)) + '</h1>';
+    /* Con il nome, il saluto della fascia diventa «Buongiorno, Nome»: lo stesso titolo, niente di aggiunto. Il nome passa sempre da esc(). */
+    var html = '<h1 class="saluto' + (nome.length > 14 ? ' lungo' : '') + '">' + esc(saluto(h)) + (nome ? ', ' + esc(nome) : '') + '</h1>';
     if (data) html += '<p class="data">' + esc(data) + '</p>';
     if (lunare) html += '<p class="data">' + esc(lunare) + '</p>';
 
@@ -322,6 +324,7 @@
     aperta = true;
     SFONDO.forEach(function (s) { var n = $(s); if (n) n.inert = true; });
     $('#opt-suono').checked = M.Audio ? M.Audio.impostazioni().suono : true;
+    $('#opt-nome').value = M.Nome ? M.Nome.leggi() : '';
     aggiornaPacchettoUI();
     sheet.hidden = false;
     card.scrollTop = 0;
@@ -336,6 +339,7 @@
     var da = apertaDa && apertaDa !== document.body && document.body.contains(apertaDa) ? apertaDa : $('#btn-info');
     apertaDa = null;
     da.focus();
+    if (vistaAttuale === 'adesso') disegnaAdesso(false);          // se il nome è cambiato, il saluto si aggiorna
   }
   M.apriSuMaladh = apriFinestra;       // serve anche a «Awrad», quando mancano le registrazioni
   $('#btn-info').addEventListener('click', apriFinestra);
@@ -351,6 +355,13 @@
     if (e.shiftKey && (document.activeElement === primo || document.activeElement === card)) { e.preventDefault(); ultimo.focus(); }
     else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primo.focus(); }
   });
+
+  /* Il nome si salva da solo mentre si scrive; svuotato, viene tolto. Uscendo dal campo si mostra la forma pulita. */
+  var campoNome = $('#opt-nome');
+  campoNome.addEventListener('input', function () { if (M.Nome) M.Nome.imposta(campoNome.value); });
+  campoNome.addEventListener('change', function () { if (M.Nome) campoNome.value = M.Nome.imposta(campoNome.value); });
+  campoNome.addEventListener('blur', function () { if (M.Nome) campoNome.value = M.Nome.leggi(); });
+  campoNome.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); campoNome.blur(); } });
 
   $('#opt-suono').addEventListener('change', function (e) { if (M.Audio) M.Audio.impostaSuono(e.target.checked); });
 

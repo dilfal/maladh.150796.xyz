@@ -1,11 +1,11 @@
 /* Maladh – service worker: tiene l'app in memoria per usarla senza rete e serve le registrazioni dell'utente.
    Sullo stesso indirizzo di base possono vivere altre app: qui si toccano solo le memorie che iniziano per «maladh-». */
-var CACHE = 'maladh-v6';
+var CACHE = 'maladh-v7';
 var AUDIO_CACHE = 'maladh-audio-v1';     // le registrazioni caricate dall'utente (le scrive js/pacchetto.js)
 var FILES = [
   './', 'index.html', 'site.webmanifest',
   'css/style.css',
-  'js/version.js', 'js/pacchetto.js', 'js/audio.js', 'js/adhkar_dati.js', 'js/adhkar_it.js', 'js/rabbana_dati.js', 'js/raccolte_dati.js',
+  'js/version.js', 'js/nome.js', 'js/pacchetto.js', 'js/audio.js', 'js/adhkar_dati.js', 'js/adhkar_it.js', 'js/rabbana_dati.js', 'js/raccolte_dati.js',
   'js/aya_dati.js', 'js/aya_it.js', 'js/frasi_dati.js', 'js/frasi_it.js',
   'js/tasbih.js', 'js/awrad.js', 'js/santuario.js', 'js/app.js',
   'img/raccolte/rabbana.webp', 'img/raccolte/shadhili.webp', 'img/raccolte/jilani.webp', 'img/raccolte/rifai.webp', 'img/raccolte/jawshan.webp',
