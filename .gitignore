@@ -17,3 +17,8 @@ riferimenti/
 __pycache__/
 *.zip
 .claude/
+
+# Worker maladh-push
+worker/node_modules/
+worker/.wrangler/
+worker/.dev.vars

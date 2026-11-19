@@ -28,8 +28,8 @@
   }
 
   /* ---------- navigazione con l'hash: #adesso, #tasbih, #adhkar, #adhkar/<chiave>, #awrad, #awrad/<chiave>,
-     #santuario, #santuario/<stato> ---------- */
-  var VISTE = ['adesso', 'tasbih', 'adhkar', 'awrad', 'santuario'];
+     #santuario, #santuario/<stato>, #tempo ---------- */
+  var VISTE = ['adesso', 'tasbih', 'adhkar', 'awrad', 'santuario', 'tempo'];
   var vistaAttuale = '', chiaveAttuale = '';
 
   function leggiHash() {
@@ -53,12 +53,14 @@
     Array.prototype.forEach.call(document.querySelectorAll('#barra a'), function (a) {
       if (a.getAttribute('data-vista') === inBarra) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
+    if (vistaAttuale === 'tempo' && r.v !== 'tempo' && window.MaladhTempo) window.MaladhTempo.nascondi();   // spegne la bussola
     vistaAttuale = r.v; chiaveAttuale = chiave;
 
     if (r.v === 'adesso') disegnaAdesso(true);
     else if (r.v === 'tasbih') { if (M.Tasbih) M.Tasbih.mostra(); }
     else if (r.v === 'awrad') { if (M.Awrad) M.Awrad.mostra(r.k); }
     else if (r.v === 'santuario') { if (M.Santuario) M.Santuario.mostra(r.k); }
+    else if (r.v === 'tempo') { if (window.MaladhTempo) window.MaladhTempo.mostra(); }
     else disegnaAdhkar(r.k);
 
     if (cambiata) window.scrollTo(0, 0);
@@ -66,7 +68,20 @@
   window.addEventListener('hashchange', vai);
 
   /* ---------- Adesso ---------- */
-  function fascia(h) {
+  /* La fascia del giorno. Con un luogo scelto in «Orari» segue gli orari veri (mattino da Fajr a Dhuhr, preghiera da Dhuhr ad Asr,
+     sera da Asr a Isha, sonno da Isha a Fajr); senza luogo resta l'orologio. */
+  function fascia(h, ora) {
+    var T = window.MaladhTempo, o = null;
+    try { o = T && ora && T.luogo() ? T.orari(ora) : null; } catch (e) { o = null; }
+    if (o) {
+      var t = ora.getTime(), f = [o.fajr, o.dhuhr, o.asr, o.isha].map(function (x) { return x instanceof Date ? x.getTime() : NaN; });
+      if (f.every(isFinite)) {
+        if (t >= f[0] && t < f[1]) return 'mattino';
+        if (t >= f[1] && t < f[2]) return 'preghiera';
+        if (t >= f[2] && t < f[3]) return 'sera';
+        return 'sonno';
+      }
+    }
     if (h >= 4 && h < 11) return 'mattino';
     if (h >= 11 && h < 15) return 'preghiera';
     if (h >= 15 && h < 20) return 'sera';
@@ -144,7 +159,7 @@
     var sez = $('#v-adesso');
     if (!sez) return;
     var ora = new Date(), h = ora.getHours();
-    var f = fascia(h);
+    var f = fascia(h, ora);
     var risveglio = h >= 4 && h < 9;
     var nAya = Array.isArray(M.Aya) ? M.Aya.length : 0, nFrasi = Array.isArray(M.Frasi) ? M.Frasi.length : 0;
     var nome = M.Nome ? M.Nome.leggi() : '';
@@ -437,6 +452,7 @@
     if (vistaAttuale === 'tasbih' && M.Tasbih) M.Tasbih.mostra();
   });
   setInterval(function () { if (!document.hidden && vistaAttuale === 'adesso') disegnaAdesso(false); }, 60000);
+  document.addEventListener('maladh:tempo', function () { if (vistaAttuale === 'adesso') disegnaAdesso(true); });   // il luogo cambia la fascia
 
   mostraVersione();
   vai();

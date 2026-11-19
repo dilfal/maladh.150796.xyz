@@ -76,6 +76,7 @@
   <section class="vista" id="v-adhkar" aria-label="Adhkar" hidden></section>
   <section class="vista" id="v-awrad" aria-label="Awrad" hidden></section>
   <section class="vista" id="v-santuario" aria-label="Santuario interiore" hidden></section>
+  <section class="vista" id="v-tempo" aria-label="Orari" hidden></section>
 </main>
 
 <!-- Lettore delle registrazioni: compare solo quando si ascolta qualcosa -->
@@ -109,6 +110,10 @@
   <a href="#awrad" data-vista="awrad">
     <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M4 20V11a8 8 0 0 1 16 0v9M8 20v-8.4a4 4 0 0 1 8 0V20M4 20h16M12 3V1.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>Awrad</span>
+  </a>
+  <a href="#tempo" data-vista="tempo">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.2V12l3.2 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Orari</span>
   </a>
 </nav>
 
@@ -144,6 +149,9 @@
     <h3>Da dove vengono i testi</h3>
     <p class="nota">Corano: testo di Tanzil (tanzil.net). Adhkar: Hisn al-Muslim. Hadith Qudsi: raccolte del progetto hadith-api. Al-Ḥikam: corpus OpenITI. Iḥyāʾ ʿulūm al-dīn: ar.wikisource.org (licenza CC BY-SA 4.0). Le traduzioni italiane sono di Maladh.</p>
 
+    <h3>Orari e Qibla</h3>
+    <p class="nota">Gli orari di preghiera e la direzione della Qibla si calcolano su questo telefono con la libreria adhan-js (licenza MIT). La posizione non lascia il telefono. Per gli avvisi, il server di Maladh riceve solo l'indirizzo per le notifiche e gli orari che hai scelto, e li cancella appena l'avviso parte. Gli orari, da soli, possono indicare all'incirca la zona in cui ti trovi.</p>
+
     <p class="versione" id="app-versione"></p>
     <div class="sheet-azioni"><button class="btn" id="sheet-chiudi" type="button">Chiudi</button></div>
   </div>
@@ -160,6 +168,9 @@
 <script src="js/aya_it.js"></script>
 <script src="js/frasi_dati.js"></script>
 <script src="js/frasi_it.js"></script>
+<script src="js/adhan.js"></script>
+<script src="js/tempo.js"></script>
+<script src="js/avvisi.js"></script>
 <script src="js/tasbih.js"></script>
 <script src="js/awrad.js"></script>
 <script src="js/santuario.js"></script>

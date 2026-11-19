@@ -131,7 +131,7 @@ body.con-lettore main { padding-bottom: calc(var(--barra-h) + env(safe-area-inse
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   height: calc(var(--barra-h) + env(safe-area-inset-bottom));
   padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(5, 1fr);
   background: var(--bg2); border-top: 1px solid var(--line);
 }
 .barra a {
@@ -348,6 +348,75 @@ a.chip:active { background: var(--surf2); }
 @keyframes alone { 0% { opacity: .85; transform: scale(.78); } 100% { opacity: 0; transform: scale(1.32); } }
 .tb-stato { text-align: center; min-height: 1.9em; margin: .5rem 0 .1rem; color: var(--gold); font-family: var(--serif); font-size: 1.2rem; max-width: none; }
 .tb-ricomincia { text-align: center; margin: 0; }
+
+/* ---- Orari ---- */
+.tp-luogo { margin: .4rem 0 .6rem; }
+.tp-luogo-riga { margin: 0 0 .5rem; font-family: var(--serif); font-size: 1.25rem; max-width: none; display: flex; align-items: center; flex-wrap: wrap; gap: 0 .4em; }
+.tp-cambia {
+  appearance: none; background: transparent; border: 0; color: var(--gold); font: inherit; font-family: var(--sans); font-size: 1rem;
+  min-height: 44px; padding: 0 10px; border-radius: 999px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.tp-cambia:active { background: var(--surf); }
+.tp-scelta { margin: 0 0 .4rem; }
+.tp-campo { margin: 1rem 0 .4rem; }
+.tp-campo label { display: block; margin: 0 0 .4rem; font-size: 1rem; }
+.tp-campo select {
+  display: block; width: 100%; max-width: 100%; min-height: 48px; padding: 10px 16px; font: inherit; font-size: 18px; line-height: 1.4;
+  color: var(--ink); background: var(--surf); border: 1.5px solid var(--line); border-radius: 14px 14px 14px 6px;
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23D8B66A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 22px; padding-right: 44px;
+}
+.tp-campo select:focus { border-color: var(--gold); }
+.tp-date { margin: 0 0 1.1rem; }
+.tp-date .data[hidden] { display: none; }
+.tp-orari { display: grid; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; max-width: none; transition: opacity .3s; }
+.tp-orari.tp-notte { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.tp-orari.in-pausa { opacity: .5; }
+.tp-orari li {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px;
+  background: var(--surf); border: 1px solid transparent; border-radius: 16px 16px 16px 6px; padding: 10px 18px;
+}
+.tp-orari li.prossima { background: var(--surf2); border-color: var(--line); }
+.tp-orari li.prossima .tp-nome { color: var(--gold); }
+.tp-nome { font-family: var(--serif); font-size: 1.1rem; font-weight: 600; min-width: 0; }
+.tp-ora { font-size: 1.15rem; font-variant-numeric: tabular-nums; color: var(--ink); flex: none; }
+.tp-qibla { margin: 1.6rem 0 1.4rem; }
+.tp-qibla .sezione-titolo { margin-top: 0; }
+.tp-bussola { margin: 1.2rem 0 0; text-align: center; }
+.tp-quadrante { position: relative; width: min(64vw, 240px); margin: 0 auto .8rem; padding-top: 14px; color: var(--gold); }
+.tp-quadrante svg { display: block; width: 100%; height: auto; transition: transform .25s linear; transform-origin: 50% 50%; }
+.tp-segno { position: absolute; top: 0; left: 50%; width: 0; height: 0; margin-left: -7px; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 11px solid var(--ink2); }
+.tp-bussola .nota { margin: 0 auto .9rem; }
+.tp-qibla .nota { margin-top: .9rem; }
+#tempo-avvisi { margin: 0 0 1.2rem; }
+.tp-avvisi .sezione-titolo { margin-top: 1.4rem; }
+.av-testo { color: var(--ink2); margin: 0 0 .6rem; }
+.av-caselle { margin: 0 0 .4rem; }
+.tp-avvisi .btn { margin-top: .4rem; }
+#tp-calendario { margin: 1.6rem 0 1.2rem; }
+.tp-sotto { margin: .7rem 0 0; }
+.tp-dett { background: var(--surf); border-radius: 18px 18px 18px 6px; margin: 0 0 12px; }
+.tp-dett summary {
+  display: flex; align-items: center; min-height: 56px; padding: 10px 18px; cursor: pointer; list-style: none;
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 600; border-radius: 18px 18px 18px 6px;
+}
+.tp-dett summary::-webkit-details-marker { display: none; }
+.tp-dett summary::after {
+  content: ""; margin-left: auto; width: 10px; height: 10px; border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold);
+  transform: rotate(45deg) translateY(-2px); transition: transform .2s;
+}
+.tp-dett[open] summary::after { transform: rotate(-135deg); }
+.tp-corpo { padding: 0 18px 12px; }
+.tp-corpo .nota { margin: .6rem 0 .4rem; }
+.tp-contatore { display: flex; align-items: center; justify-content: center; gap: 18px; margin: .2rem 0 .6rem; }
+.tp-tondo {
+  appearance: none; flex: none; display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  background: var(--surf2); color: var(--ink); border: 1.5px solid var(--line); font: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0;
+}
+.tp-tondo:active { background: var(--bg2); }
+.tp-tondo[disabled] { opacity: .4; cursor: default; }
+.tp-numero { min-width: 5.5em; text-align: center; font-family: var(--serif); font-size: 1.5rem; font-variant-numeric: tabular-nums; color: var(--ink); }
 
 /* ---- finestra dal basso ---- */
 .sheet { position: fixed; inset: 0; z-index: 60; background: rgba(3,10,8,.65); display: flex; align-items: flex-end; justify-content: center; }

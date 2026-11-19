@@ -1,0 +1,18 @@
+name = "maladh-push"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+routes = [{ pattern = "push.150796.xyz", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "maladh-push"
+database_id = "87e72479-0654-42ce-88f9-06193d79f2ca"
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+ORIGINE = "https://maladh.150796.xyz"
+VAPID_PUBLIC = "BKFhfliYY8ccs67mNVyiuXC7u8UQdb4bE7O2A65hcWkfv8PQXRJ3OHyZgIJSmvVOpT_1DV4Wt8tzWWUe61Omox8"
+VAPID_SUBJECT = "https://maladh.150796.xyz"
+# Il segreto VAPID_PRIVATE (JWK in JSON) non sta qui: si imposta con "wrangler secret put VAPID_PRIVATE".

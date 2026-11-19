@@ -1,0 +1,42 @@
+maladh-push - notifiche all'ora delle preghiere (Cloudflare Worker + D1)
+
+COSA FA
+Il sito calcola in locale gli orari delle preghiere e manda al server solo
+l'indirizzo push del browser e un elenco di istanti (secondi epoch). Il server
+non riceve mai la posizione. All'ora indicata invia un push senza testo
+(Web Push + VAPID); il service worker del sito sceglie da sé cosa mostrare.
+
+DATI CONSERVATI (database D1)
+- iscrizioni: hash SHA-256 dell'indirizzo push, l'indirizzo push, data
+  dell'ultimo aggiornamento.
+- avvisi: gli istanti futuri (al massimo 80, entro 11 giorni).
+Gli avvisi si cancellano dopo l'invio riuscito o quando scadono (10 minuti
+dopo l'ora); se il servizio push è momentaneamente in errore si riprova ogni
+minuto. Al massimo 1000 iscrizioni e 40 push per minuto (piano gratuito). Le iscrizioni senza avvisi e non
+aggiornate da 30 giorni si cancellano ogni notte; si cancellano subito anche
+con /cancella o se il servizio push risponde 404/410. Nessun log con indirizzi
+o orari.
+
+INTERFACCIA
+POST /iscrivi   {endpoint, orari:[secondi epoch]}  -> 204
+POST /cancella  {endpoint}                         -> 204
+Solo origine https://maladh.150796.xyz (e localhost per le prove).
+
+DEPLOY (da questa cartella)
+1. npx wrangler@4 d1 create maladh-push
+2. copiare il database_id stampato in wrangler.toml
+3. npx wrangler@4 d1 execute maladh-push --remote --file schema.sql
+4. npx wrangler@4 secret put VAPID_PRIVATE
+   (incollare il campo privateJwk del file delle chiavi, come JSON su una riga)
+5. npx wrangler@4 deploy
+
+CHIAVI
+node genera_vapid.mjs <file.json> crea la coppia nel file indicato, in una
+cartella privata fuori dal repository (non sovrascrive). La chiave
+pubblica è già in wrangler.toml; la privata non va mai nel repository.
+
+PROVA LOCALE
+Creare .dev.vars con VAPID_PRIVATE='<JWK in JSON>' (è nel .gitignore), poi
+npx wrangler@4 d1 execute maladh-push --local --file schema.sql
+npx wrangler@4 dev --local --test-scheduled
+(giro del cron: curl "http://localhost:8787/__scheduled")
