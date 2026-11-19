@@ -10,6 +10,11 @@ DATI CONSERVATI (database D1)
 - iscrizioni: hash SHA-256 dell'indirizzo push, l'indirizzo push, data
   dell'ultimo aggiornamento.
 - avvisi: gli istanti futuri (al massimo 80, entro 11 giorni).
+- legami (collegamento facoltativo con l'app Marsa): SHA-256 di un codice
+  casuale, un bit «in pausa» e il giorno dell'ultimo contatto. Il codice non
+  si conserva mai; nessuna data del ciclo, nessuno storico. Al massimo 1000;
+  si cancellano dopo 60 giorni senza contatti o con /scollega.
+- collegamenti: quale iscrizione push appartiene a quale legame.
 Gli avvisi si cancellano dopo l'invio riuscito o quando scadono (10 minuti
 dopo l'ora); se il servizio push è momentaneamente in errore si riprova ogni
 minuto. Al massimo 1000 iscrizioni e 40 push per minuto (piano gratuito). Le iscrizioni senza avvisi e non
@@ -20,12 +25,22 @@ o orari.
 INTERFACCIA
 POST /iscrivi   {endpoint, orari:[secondi epoch]}  -> 204
 POST /cancella  {endpoint}                         -> 204
-Solo origine https://maladh.150796.xyz (e localhost per le prove).
+Collegamento con Marsa (JSON in risposta; il codice si accetta con o senza
+trattini, maiuscolo o minuscolo, 26 caratteri Crockford base32, altrimenti 400):
+POST /collega   {codice, endpoint?}  -> {pausa}   (solo Maladh; 503 oltre 1000 legami)
+POST /pausa     {codice, pausa:bool} -> {pausa}   (404 se sconosciuto; con true cancella gli avvisi legati)
+POST /stato     {codice}             -> {pausa}   (404 se sconosciuto)
+POST /scollega  {codice}             -> {ok:true}
+Con un legame in pausa, /iscrivi con avvisi nuovi risponde 409 {pausa:true}.
+Origini ammesse: https://maladh.150796.xyz (tutti i percorsi), https://marsa.150796.xyz
+(solo /pausa, /stato, /scollega) e localhost per le prove.
 
 DEPLOY (da questa cartella)
 1. npx wrangler@4 d1 create maladh-push
 2. copiare il database_id stampato in wrangler.toml
 3. npx wrangler@4 d1 execute maladh-push --remote --file schema.sql
+   (lo schema è idempotente: per un database già in uso basta rilanciarlo, crea
+   solo le tabelle nuove legami e collegamenti)
 4. npx wrangler@4 secret put VAPID_PRIVATE
    (incollare il campo privateJwk del file delle chiavi, come JSON su una riga)
 5. npx wrangler@4 deploy

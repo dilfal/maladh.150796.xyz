@@ -11,6 +11,11 @@ const GIORNI_INATTIVITA = 30;
 const MAX_PUSH_PER_GIRO = 40; // piano gratuito: 50 sottorichieste per invocazione
 const MAX_ISCRIZIONI = 1000;
 const STATI_DEFINITIVI = [400, 401, 403, 404, 410];
+const MAX_LEGAMI = 1000;
+const GIORNI_LEGAMI = 60;
+// Percorsi che può chiamare l'app Marsa (il collegamento lo crea soltanto Maladh).
+const PERCORSI_MARSA = ['/pausa', '/stato', '/scollega'];
+const PERCORSI = ['/iscrivi', '/cancella', '/collega', '/pausa', '/stato', '/scollega'];
 
 const HOST_AMMESSI = ['fcm.googleapis.com', 'updates.push.services.mozilla.com', 'web.push.apple.com'];
 const SUFFISSI_AMMESSI = ['.push.apple.com', '.notify.windows.com'];
@@ -38,11 +43,23 @@ async function sha256Hex(testo) {
   return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-function origineConsentita(origine, env) {
+function origineConsentita(origine, env, percorso) {
   if (!origine) return false;
   if (origine === env.ORIGINE) return true;
+  if (env.ORIGINE_MARSA && origine === env.ORIGINE_MARSA) return PERCORSI_MARSA.includes(percorso);
   return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origine);
 }
+
+// Il codice del collegamento: si accetta con o senza trattini, minuscolo o maiuscolo.
+// Del codice si conserva soltanto l'impronta (SHA-256): mai in chiaro, mai nei log.
+const ALFABETO_CODICE = /^[0-9A-HJKMNP-TV-Z]{26}$/;
+async function improntaDa(codice) {
+  if (typeof codice !== 'string' || codice.length > 64) return null;
+  const pulito = codice.replace(/[-\s]/g, '').toUpperCase();
+  if (!ALFABETO_CODICE.test(pulito)) return null;
+  return sha256Hex(pulito);
+}
+function oggi() { return Math.floor(Date.now() / 86400000); }
 
 function intestazioniCors(origine) {
   return {
@@ -56,6 +73,11 @@ function intestazioniCors(origine) {
 
 function risposta(stato, origine) {
   return new Response(null, { status: stato, headers: origine ? intestazioniCors(origine) : {} });
+}
+
+function rispostaJson(oggetto, stato, origine) {
+  const intestazioni = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...(origine ? intestazioniCors(origine) : {}) };
+  return new Response(JSON.stringify(oggetto), { status: stato, headers: intestazioni });
 }
 
 // Legge il corpo JSON con tetto di 8 KB; ritorna {errore: stato} oppure {dati}.
@@ -102,6 +124,13 @@ async function iscrivi(dati, env, origine) {
     if (orari.length >= MAX_ORARI) break;
   }
   const id = await sha256Hex(dati.endpoint);
+  if (orari.length > 0) {
+    // Con un legame in pausa non si accetta nessun avviso nuovo.
+    const inPausa = await env.DB.prepare(
+      'SELECT 1 AS p FROM collegamenti c JOIN legami l ON l.impronta = c.impronta WHERE c.iscrizione = ? AND l.pausa = 1',
+    ).bind(id).first();
+    if (inPausa) return rispostaJson({ pausa: true }, 409, origine);
+  }
   const conteggio = await env.DB.prepare(
     'SELECT (SELECT count(*) FROM iscrizioni) AS tot, (SELECT count(*) FROM iscrizioni WHERE id = ?) AS esiste',
   ).bind(id).first();
@@ -120,17 +149,82 @@ async function cancella(dati, env, origine) {
   const id = await sha256Hex(dati.endpoint);
   await env.DB.batch([
     env.DB.prepare('DELETE FROM avvisi WHERE iscrizione = ?').bind(id),
+    env.DB.prepare('DELETE FROM collegamenti WHERE iscrizione = ?').bind(id),
     env.DB.prepare('DELETE FROM iscrizioni WHERE id = ?').bind(id),
   ]);
   return risposta(204, origine);
 }
 
+/* ---------- collegamento facoltativo con Marsa ----------
+   Il server sa solo: un'impronta casuale, se è in pausa o no, e il giorno dell'ultimo contatto. Nessuna data del ciclo, nessuno storico. */
+async function collega(dati, env, origine) {
+  const impronta = await improntaDa(dati.codice);
+  if (!impronta) return risposta(400, origine);
+  let id = null;
+  if (dati.endpoint !== undefined && dati.endpoint !== null) {
+    if (!endpointValido(dati.endpoint)) return risposta(400, origine);
+    id = await sha256Hex(dati.endpoint);
+  }
+  const giorno = oggi();
+  const conteggio = await env.DB.prepare(
+    'SELECT (SELECT count(*) FROM legami) AS tot, (SELECT count(*) FROM legami WHERE impronta = ?) AS esiste',
+  ).bind(impronta).first();
+  if (!conteggio.esiste && conteggio.tot >= MAX_LEGAMI) return risposta(503, origine);
+  await env.DB.prepare(
+    'INSERT INTO legami (impronta, pausa, toccato) VALUES (?, 0, ?) ON CONFLICT(impronta) DO UPDATE SET toccato = excluded.toccato',
+  ).bind(impronta, giorno).run();
+  const riga = await env.DB.prepare('SELECT pausa FROM legami WHERE impronta = ?').bind(impronta).first();
+  if (id) {
+    // Si lega solo un'iscrizione già presente sul server.
+    const ha = await env.DB.prepare('SELECT 1 AS x FROM iscrizioni WHERE id = ?').bind(id).first();
+    if (ha) {
+      const istruzioni = [env.DB.prepare('INSERT OR REPLACE INTO collegamenti (iscrizione, impronta) VALUES (?, ?)').bind(id, impronta)];
+      if (riga.pausa) istruzioni.push(env.DB.prepare('DELETE FROM avvisi WHERE iscrizione = ?').bind(id));
+      await env.DB.batch(istruzioni);
+    }
+  }
+  return rispostaJson({ pausa: !!riga.pausa }, 200, origine);
+}
+
+async function pausa(dati, env, origine) {
+  const impronta = await improntaDa(dati.codice);
+  if (!impronta || typeof dati.pausa !== 'boolean') return risposta(400, origine);
+  const r = await env.DB.prepare('UPDATE legami SET pausa = ?, toccato = ? WHERE impronta = ?')
+    .bind(dati.pausa ? 1 : 0, oggi(), impronta).run();
+  if (!r.meta.changes) return risposta(404, origine);
+  if (dati.pausa) {
+    await env.DB.prepare('DELETE FROM avvisi WHERE iscrizione IN (SELECT iscrizione FROM collegamenti WHERE impronta = ?)').bind(impronta).run();
+  }
+  return rispostaJson({ pausa: dati.pausa }, 200, origine);
+}
+
+async function stato(dati, env, origine) {
+  const impronta = await improntaDa(dati.codice);
+  if (!impronta) return risposta(400, origine);
+  const r = await env.DB.prepare('UPDATE legami SET toccato = ? WHERE impronta = ?').bind(oggi(), impronta).run();
+  if (!r.meta.changes) return risposta(404, origine);
+  const riga = await env.DB.prepare('SELECT pausa FROM legami WHERE impronta = ?').bind(impronta).first();
+  return rispostaJson({ pausa: !!(riga && riga.pausa) }, 200, origine);
+}
+
+async function scollega(dati, env, origine) {
+  const impronta = await improntaDa(dati.codice);
+  if (!impronta) return risposta(400, origine);
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM collegamenti WHERE impronta = ?').bind(impronta),
+    env.DB.prepare('DELETE FROM legami WHERE impronta = ?').bind(impronta),
+  ]);
+  return rispostaJson({ ok: true }, 200, origine);
+}
+
+const GESTORI = { '/iscrivi': iscrivi, '/cancella': cancella, '/collega': collega, '/pausa': pausa, '/stato': stato, '/scollega': scollega };
+
 async function gestisci(request, env) {
   const url = new URL(request.url);
   const origineRichiesta = request.headers.get('Origin');
-  const consentita = origineConsentita(origineRichiesta, env);
+  const consentita = origineConsentita(origineRichiesta, env, url.pathname);
 
-  if (url.pathname !== '/iscrivi' && url.pathname !== '/cancella') {
+  if (!PERCORSI.includes(url.pathname)) {
     return new Response(null, { status: 404 });
   }
 
@@ -146,7 +240,7 @@ async function gestisci(request, env) {
   if (errore) return risposta(errore, origine);
 
   try {
-    return url.pathname === '/iscrivi' ? await iscrivi(dati, env, origine) : await cancella(dati, env, origine);
+    return await GESTORI[url.pathname](dati, env, origine);
   } catch {
     return risposta(500, origine);
   }
@@ -212,6 +306,7 @@ async function eseguiAvvisi(env, adesso) {
       istruzioni.push(env.DB.prepare('DELETE FROM avvisi WHERE iscrizione = ? AND at <= ?').bind(id, adesso));
     } else {
       istruzioni.push(env.DB.prepare('DELETE FROM avvisi WHERE iscrizione = ?').bind(id));
+      istruzioni.push(env.DB.prepare('DELETE FROM collegamenti WHERE iscrizione = ?').bind(id));
       istruzioni.push(env.DB.prepare('DELETE FROM iscrizioni WHERE id = ?').bind(id));
     }
   }
@@ -223,6 +318,13 @@ async function pulisciVecchie(env, adesso) {
   await env.DB.prepare(
     'DELETE FROM iscrizioni WHERE aggiornato < ? AND NOT EXISTS (SELECT 1 FROM avvisi WHERE avvisi.iscrizione = iscrizioni.id)',
   ).bind(limite).run();
+  // Legami senza contatti da 60 giorni, con i loro collegamenti; e collegamenti rimasti senza iscrizione.
+  const giornoLimite = Math.floor(adesso / 86400) - GIORNI_LEGAMI;
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM collegamenti WHERE impronta IN (SELECT impronta FROM legami WHERE toccato < ?)').bind(giornoLimite),
+    env.DB.prepare('DELETE FROM legami WHERE toccato < ?').bind(giornoLimite),
+    env.DB.prepare('DELETE FROM collegamenti WHERE iscrizione NOT IN (SELECT id FROM iscrizioni) OR impronta NOT IN (SELECT impronta FROM legami)'),
+  ]);
 }
 
 export default {

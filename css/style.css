@@ -451,3 +451,12 @@ a.chip:active { background: var(--surf2); }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .splash { display: none !important; }       /* con il movimento ridotto lo splash non compare */
 }
+
+/* Collega a Marsa (js/marsa.js), dentro «Giorni di pausa» */
+.mr-blocco { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--line, rgba(127, 127, 127, .25)); }
+.mr-titolo { margin: 0 0 .5rem; font-size: 1.05rem; font-weight: 600; }
+.mr-codice { display: block; margin: .3rem 0 .8rem; padding: .7rem .8rem; border-radius: 12px; background: var(--surf); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1rem; letter-spacing: .04em; line-height: 1.5; word-break: break-all; user-select: all; -webkit-user-select: all; }
+.mr-azioni { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.mr-azioni .btn { flex: 1 1 8rem; }
+.mr-blocco .nota { margin: .6rem 0 .3rem; }
+.mr-privacy { margin-top: .8rem; }

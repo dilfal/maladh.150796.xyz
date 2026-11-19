@@ -1,13 +1,13 @@
 /* Maladh – «Orari»: orari di preghiera, Qibla e calendario, calcolati su questo dispositivo con adhan-js (js/adhan.js).
    Il luogo sta solo in questo telefono (localStorage, «maladh.luogo»: nome e coordinate a due decimali) e non viene mai inviato da nessuna parte.
-   Chiavi: maladh.luogo = {nome, lat, lon}; maladh.tempo = {metodo, asr, hijri}; maladh.pausa = "1" o assente; maladh.digiuni = intero.
+   Chiavi: maladh.luogo = {nome, lat, lon}; maladh.tempo = {metodo, asr, hijri}; maladh.pausa = "1" o assente; maladh.pausaDa = "marsa" se la pausa l'ha messa il collegamento con Marsa (js/marsa.js); maladh.digiuni = intero.
    Niente conti alla rovescia, niente serie di giorni, niente percentuali: gli orari sono un'informazione, non un compito.
    L'unico nome globale è window.MaladhTempo (l'API per gli altri file; la vista la apre app.js con mostra() e nascondi()). */
 (function () {
   'use strict';
 
   var A = window.adhan;
-  var K_LUOGO = 'maladh.luogo', K_TEMPO = 'maladh.tempo', K_PAUSA = 'maladh.pausa', K_DIGIUNI = 'maladh.digiuni';
+  var K_LUOGO = 'maladh.luogo', K_TEMPO = 'maladh.tempo', K_PAUSA = 'maladh.pausa', K_PAUSADA = 'maladh.pausaDa', K_DIGIUNI = 'maladh.digiuni';
   var MIN = 60000, GIORNO = 86400000;
 
   var METODI = [
@@ -129,11 +129,14 @@
     avvisa();
   }
   function salvaImp() { scrivi(K_TEMPO, JSON.stringify(stImp)); avvisa(); }
-  function impostaPausa(v) {
+  /* «da» = 'marsa' quando la pausa arriva dal collegamento con Marsa (js/marsa.js); con lo switch è sempre assente. */
+  function impostaPausa(v, da) {
     stPausa = !!v;
     scrivi(K_PAUSA, stPausa ? '1' : null);
+    scrivi(K_PAUSADA, stPausa && da === 'marsa' ? 'marsa' : null);
     avvisa();
   }
+  function pausaDaMarsa() { return stPausa && leggi(K_PAUSADA) === 'marsa'; }
   function impostaDigiuni(n) {
     stDigiuni = Math.max(0, Math.min(365, n | 0));
     scrivi(K_DIGIUNI, String(stDigiuni));
@@ -245,7 +248,9 @@
 
       '<details class="tp-dett"><summary>Giorni di pausa</summary><div class="tp-corpo">' +
         '<label class="spunta" for="tp-pausa"><input type="checkbox" id="tp-pausa" role="switch"><span>Pausa dalla salat</span></label>' +
+        '<p class="nota" id="tp-pausa-da" hidden>Pausa messa da Marsa.</p>' +
         '<p class="nota">Per i giorni delle mestruazioni o del puerperio. Gli orari restano in disparte e gli avvisi di Maladh si fermano finché non la togli. Il ricordo resta sempre: il <a href="#tasbih">Tasbih</a> e gli <a href="#adhkar">Adhkar</a> sono qui.</p>' +
+        '<div id="tempo-marsa"></div>' +
       '</div></details>' +
 
       '<details class="tp-dett"><summary>Digiuni da recuperare</summary><div class="tp-corpo">' +
@@ -282,7 +287,10 @@
     $('#tp-cambia').addEventListener('click', function () { cambiando = !cambiando; aggiorna(); if (cambiando) $('#tp-gps').focus(); });
     $('#tp-bussola').addEventListener('click', bussolaTocco);
     $('#tp-ics').addEventListener('click', scaricaIcs);
-    $('#tp-pausa').addEventListener('change', function (e) { impostaPausa(e.target.checked); });
+    $('#tp-pausa').addEventListener('change', function (e) {
+      impostaPausa(e.target.checked);
+      try { document.dispatchEvent(new CustomEvent('maladh:pausa-scelta', { detail: { pausa: e.target.checked } })); } catch (x) {}      // js/marsa.js, se collegato
+    });
     $('#tp-dig-meno').addEventListener('click', function () { impostaDigiuni(stDigiuni - 1); mostraDigiuni(); });
     $('#tp-dig-piu').addEventListener('click', function () { impostaDigiuni(stDigiuni + 1); mostraDigiuni(); });
     $('#tp-metodo').addEventListener('change', function (e) { if (esiste(METODI, e.target.value)) { stImp.metodo = e.target.value; salvaImp(); } });
@@ -407,6 +415,7 @@
     var eg = dataEgira(adesso), e = $('#tp-egira');
     e.textContent = eg; e.hidden = !eg;
     $('#tp-pausa').checked = stPausa;
+    $('#tp-pausa-da').hidden = !pausaDaMarsa();
     $('#tp-metodo').value = stImp.metodo;
     $('#tp-asr').value = stImp.asr;
     $('#tp-hijri').value = String(stImp.hijri);
@@ -512,6 +521,7 @@
     orari: orari,
     prossimi: prossimi,
     inPausa: inPausa,
+    impostaPausa: impostaPausa,
     ics: ics,
     mostra: mostra,
     nascondi: nascondi

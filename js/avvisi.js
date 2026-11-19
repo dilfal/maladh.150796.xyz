@@ -69,7 +69,12 @@
   /* ---------- server ---------- */
   function invia(percorso, corpo) {
     return fetch(PUSH_URL + percorso, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) })
-      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); });
+      .then(function (r) {
+        if (r.status === 409) {       // il collegamento con Marsa è in pausa: il server non accetta avvisi nuovi
+          return r.json().catch(function () { return null; }).then(function (d) { var e = new Error('pausa'); e.pausa = !!(d && d.pausa); throw e; });
+        }
+        if (!r.ok) throw new Error('http ' + r.status);
+      });
   }
   function registrazione() {
     return navigator.serviceWorker.getRegistration().then(function (reg) { return reg && reg.active ? reg : (reg ? navigator.serviceWorker.ready : null); });
@@ -91,8 +96,16 @@
         var elenco = T().prossimi(10, stato.chiavi).slice(0, 80);
         return scriviElenco(elenco, T().inPausa()).then(function () {
           return invia('/iscrivi', { endpoint: sub.endpoint, orari: elenco.map(function (x) { return x.at; }) });
-        }).then(function () { stato.inviato = Date.now(); salva(); messaggio(''); });
-      }).catch(function () {
+        }).then(function () {
+          stato.inviato = Date.now(); salva(); messaggio('');
+          if (window.MaladhMarsa) window.MaladhMarsa.legaIscrizione(sub.endpoint);       // se è collegato a Marsa, lega questa iscrizione
+        });
+      }).catch(function (e) {
+        if (e && e.pausa) {          // 409: la pausa arriva dal server (Marsa)
+          stato.inviato = Date.now(); salva(); messaggio('');
+          if (window.MaladhMarsa) window.MaladhMarsa.pausaDalServer();
+          return;
+        }
         stato.inviato = 0; salva();          // da riprovare: quando torna la rete o alla prossima apertura
         messaggio('Gli avvisi si aggiorneranno alla prossima apertura.');
       });
@@ -137,6 +150,7 @@
     stato.attivi = false; salva();
     iscrizione().then(function (sub) {
       if (!sub) return;
+      if (window.MaladhMarsa) window.MaladhMarsa.dimentica();
       return invia('/cancella', { endpoint: sub.endpoint }).catch(function () {}).then(function () { return sub.unsubscribe(); });
     }).catch(function () {}).then(function () { return scriviElenco([], false); }).catch(function () {}).then(function () { messaggio(''); disegna(); });
   }
@@ -210,5 +224,14 @@
   }
   if (stato.attivi && Date.now() - stato.inviato > DODICI_ORE) setTimeout(sincronizza, 1500);       // all'apertura, se l'ultimo invio è vecchio
 
-  window.MaladhAvvisi = { sincronizza: sincronizza };
+  /* L'indirizzo push di questo browser (o null): serve a js/marsa.js per legare l'iscrizione al collegamento. */
+  function endpoint() {
+    if (!conSupporto()) return Promise.resolve(null);
+    return iscrizione().then(function (sub) { return sub ? sub.endpoint : null; }).catch(function () { return null; });
+  }
+
+  /* Chiesto da js/marsa.js quando la pausa finisce: gli avvisi che il server aveva cancellato si rifanno subito. */
+  function rinnova() { stato.inviato = 0; salva(); return sincronizza(); }
+
+  window.MaladhAvvisi = { sincronizza: sincronizza, endpoint: endpoint, rinnova: rinnova };
 })();
