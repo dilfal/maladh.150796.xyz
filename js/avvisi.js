@@ -197,7 +197,7 @@
     var testo = '';
     if (!luogo) testo = 'Scegli un luogo per gli avvisi.';
     else if (iosFuoriDallaHome()) testo = 'Su iPhone gli avvisi arrivano solo se Maladh è nella schermata Home: Condividi, poi «Aggiungi alla schermata Home».';
-    else if (!conSupporto()) testo = 'Questo browser non riceve avvisi. Puoi usare il calendario qui sotto.';
+    else if (!conSupporto()) testo = 'Questo browser non riceve avvisi.';
     nota.textContent = testo; nota.hidden = !testo;
     corpo.hidden = !!testo;
     if (testo) return;

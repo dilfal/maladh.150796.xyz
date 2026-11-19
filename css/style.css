@@ -394,7 +394,6 @@ a.chip:active { background: var(--surf2); }
 .av-testo { color: var(--ink2); margin: 0 0 .6rem; }
 .av-caselle { margin: 0 0 .4rem; }
 .tp-avvisi .btn { margin-top: .4rem; }
-#tp-calendario { margin: 1.6rem 0 1.2rem; }
 .tp-sotto { margin: .7rem 0 0; }
 .tp-dett { background: var(--surf); border-radius: 18px 18px 18px 6px; margin: 0 0 12px; }
 .tp-dett summary {
@@ -452,7 +451,7 @@ a.chip:active { background: var(--surf2); }
   .splash { display: none !important; }       /* con il movimento ridotto lo splash non compare */
 }
 
-/* Collega a Marsa (js/marsa.js), dentro «Giorni di pausa» */
+/* Collega a Marsa (js/marsa.js), dentro «Giorni di pausa e Marsa» */
 .mr-blocco { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--line, rgba(127, 127, 127, .25)); }
 .mr-titolo { margin: 0 0 .5rem; font-size: 1.05rem; font-weight: 600; }
 .mr-codice { display: block; margin: .3rem 0 .8rem; padding: .7rem .8rem; border-radius: 12px; background: var(--surf); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1rem; letter-spacing: .04em; line-height: 1.5; word-break: break-all; user-select: all; -webkit-user-select: all; }

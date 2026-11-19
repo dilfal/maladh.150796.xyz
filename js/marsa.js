@@ -211,7 +211,7 @@
     else ripiego();
   }
 
-  /* ---------- il blocco dentro «Giorni di pausa» ---------- */
+  /* ---------- il blocco dentro «Giorni di pausa e Marsa» ---------- */
   function messaggio(t) { messaggioTesto = t; var m = $('#mr-msg'); if (m) m.textContent = t; }
 
   function disegna() {

@@ -1,4 +1,4 @@
-/* Maladh – «Orari»: orari di preghiera, Qibla e calendario, calcolati su questo dispositivo con adhan-js (js/adhan.js).
+/* Maladh – «Orari»: orari di preghiera e Qibla, calcolati su questo dispositivo con adhan-js (js/adhan.js).
    Il luogo sta solo in questo telefono (localStorage, «maladh.luogo»: nome e coordinate a due decimali) e non viene mai inviato da nessuna parte.
    Chiavi: maladh.luogo = {nome, lat, lon}; maladh.tempo = {metodo, asr, hijri}; maladh.pausa = "1" o assente; maladh.pausaDa = "marsa" se la pausa l'ha messa il collegamento con Marsa (js/marsa.js); maladh.digiuni = intero.
    Niente conti alla rovescia, niente serie di giorni, niente percentuali: gli orari sono un'informazione, non un compito.
@@ -37,7 +37,6 @@
   ];
   var NOTTE_VOCI = [['metaNotte', 'Metà della notte'], ['ultimoTerzo', 'Ultimo terzo della notte']];
   var TUTTE = GIORNO_VOCI.concat(NOTTE_VOCI).map(function (v) { return v[0]; });
-  var PREGHIERE = [['fajr', 'Fajr'], ['dhuhr', 'Dhuhr'], ['asr', 'Asr'], ['maghrib', 'Maghrib'], ['isha', 'Isha']];
 
   /* ---------- memoria: ogni accesso a localStorage è protetto; se manca, i valori valgono finché la pagina resta aperta ---------- */
   function leggi(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -142,35 +141,7 @@
     scrivi(K_DIGIUNI, String(stDigiuni));
   }
 
-  /* ---------- calendario (.ics): cinque preghiere per trenta giorni, tutto in locale, nessuna posizione nel file ---------- */
   function p2(n) { return (n < 10 ? '0' : '') + n; }
-  function icsData(d) {
-    return d.getUTCFullYear() + p2(d.getUTCMonth() + 1) + p2(d.getUTCDate()) + 'T' + p2(d.getUTCHours()) + p2(d.getUTCMinutes()) + p2(d.getUTCSeconds()) + 'Z';
-  }
-  function ics(da) {
-    var inizio = da instanceof Date && !isNaN(da) ? da : new Date();
-    var ora = icsData(new Date());
-    var r = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Maladh//IT', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
-    for (var i = 0; i < 30; i++) {
-      var g = new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate() + i, 12);
-      var o = orari(g);
-      if (!o) continue;
-      PREGHIERE.forEach(function (pr) {
-        var t = o[pr[0]];
-        if (!(t instanceof Date) || isNaN(t)) return;
-        r.push('BEGIN:VEVENT',
-          'UID:maladh-' + g.getFullYear() + p2(g.getMonth() + 1) + p2(g.getDate()) + '-' + pr[0] + '@maladh.150796.xyz',
-          'DTSTAMP:' + ora,
-          'DTSTART:' + icsData(t),
-          'DTEND:' + icsData(new Date(t.getTime() + 10 * MIN)),
-          'SUMMARY:' + pr[1],
-          'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + pr[1], 'TRIGGER:PT0M', 'END:VALARM',
-          'END:VEVENT');
-      });
-    }
-    r.push('END:VCALENDAR');
-    return r.join('\r\n') + '\r\n';
-  }
 
   /* ---------- date ---------- */
   function ora12(d, extra) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + (extra || 0), 12); }
@@ -240,13 +211,7 @@
 
       '<div id="tempo-avvisi"></div>' +
 
-      '<div id="tp-calendario" hidden>' +
-        '<button class="btn secondario" id="tp-ics" type="button">Aggiungi al calendario (30 giorni)</button>' +
-        '<p class="nota tp-sotto" id="tp-ics-nota">Gli avvisi arrivano dal calendario del telefono, anche ad app chiusa.</p>' +
-        '<p class="nota tp-sotto" id="tp-ics-pausa" hidden>Durante la pausa il calendario non si prepara. Gli avvisi già importati si tolgono dall\'app Calendario.</p>' +
-      '</div>' +
-
-      '<details class="tp-dett"><summary>Giorni di pausa</summary><div class="tp-corpo">' +
+      '<details class="tp-dett"><summary>Giorni di pausa e Marsa</summary><div class="tp-corpo">' +
         '<label class="spunta" for="tp-pausa"><input type="checkbox" id="tp-pausa" role="switch"><span>Pausa dalla salat</span></label>' +
         '<p class="nota" id="tp-pausa-da" hidden>Pausa messa da Marsa.</p>' +
         '<p class="nota">Per i giorni delle mestruazioni o del puerperio. Gli orari restano in disparte e gli avvisi di Maladh si fermano finché non la togli. Il ricordo resta sempre: il <a href="#tasbih">Tasbih</a> e gli <a href="#adhkar">Adhkar</a> sono qui.</p>' +
@@ -286,7 +251,6 @@
     });
     $('#tp-cambia').addEventListener('click', function () { cambiando = !cambiando; aggiorna(); if (cambiando) $('#tp-gps').focus(); });
     $('#tp-bussola').addEventListener('click', bussolaTocco);
-    $('#tp-ics').addEventListener('click', scaricaIcs);
     $('#tp-pausa').addEventListener('change', function (e) {
       impostaPausa(e.target.checked);
       try { document.dispatchEvent(new CustomEvent('maladh:pausa-scelta', { detail: { pausa: e.target.checked } })); } catch (x) {}      // js/marsa.js, se collegato
@@ -319,20 +283,6 @@
         ? 'Non hai dato il permesso per la posizione. Puoi scegliere una città qui sotto.'
         : 'Non sono riuscito a leggere la posizione. Puoi riprovare, oppure scegliere una città qui sotto.');
     }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 600000 });
-  }
-
-  function scaricaIcs() {
-    if (!stLuogo || stPausa) return;
-    try {
-      var blob = new Blob([ics()], { type: 'text/calendar;charset=utf-8' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url; a.download = 'maladh-orari.ics';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    } catch (e) {}
   }
 
   function mostraDigiuni() {
@@ -407,10 +357,6 @@
     $('#tp-cambia').setAttribute('aria-expanded', ha && cambiando ? 'true' : 'false');
     if (ha) $('#tp-nome').textContent = stLuogo.nome;
     $('#tp-dati').hidden = !ha;
-    $('#tp-calendario').hidden = !ha;
-    $('#tp-ics').hidden = stPausa;
-    $('#tp-ics-nota').hidden = stPausa;
-    $('#tp-ics-pausa').hidden = !stPausa;
     $('#tp-greg').textContent = dataGregoriana(adesso);
     var eg = dataEgira(adesso), e = $('#tp-egira');
     e.textContent = eg; e.hidden = !eg;
@@ -522,7 +468,6 @@
     prossimi: prossimi,
     inPausa: inPausa,
     impostaPausa: impostaPausa,
-    ics: ics,
     mostra: mostra,
     nascondi: nascondi
   };
